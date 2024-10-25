@@ -1,101 +1,156 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from 'react';
+import RecipeCard from "@/components/globals/recipe";
+import useRecipeStore from "@/hooks/recipe";
+import { CopilotSidebar } from "@copilotkit/react-ui";
+import { useCopilotReadable, useCopilotAction } from "@copilotkit/react-core";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { recipes, addRecipe, removeRecipe, updateRecipe } = useRecipeStore();
+  const [isGenerating, setIsGenerating] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useCopilotReadable({
+    description: "A list of recipes",
+    value: recipes,
+  });
+
+  const generateRecipe = async (ingredients: string[]) => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ingredients }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate recipe');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error generating recipe:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  useCopilotAction({
+    name: "create-recipe",
+    description: "Create a new recipe",
+    parameters: [
+      {
+        name: "name",
+        type: "string",
+        required: true,
+      },
+      {
+        name: "ingredients",
+        type: "string[]",
+        required: true,
+      },
+      {
+        name: "instructions",
+        type: "string",
+        required: true,
+      },
+      {
+        name: "imageUrl",
+        type: "string",
+      }
+    ],
+    handler: async ({ name, ingredients, instructions }) => {
+      try {
+        const generatedRecipe = await generateRecipe(ingredients);
+        addRecipe({
+          name: generatedRecipe.name || name,
+          ingredients: generatedRecipe.ingredients || ingredients,
+          instructions: generatedRecipe.instructions || instructions,
+          imageUrl: generatedRecipe.imageUrl || "",
+        });
+        return "Recipe created successfully";
+      } catch (error) {
+        console.error('Error creating recipe:', error);
+        return "Failed to create recipe";
+      }
+    },
+  });
+
+  useCopilotAction({
+    name: "delete-recipe",
+    description: "Delete a recipe",
+    parameters: [
+      {
+        name: "id",
+        type: "string",
+        required: true,
+      },
+    ],
+    handler: ({ id }) => {
+      removeRecipe(id);
+      return "Recipe deleted successfully";
+    },
+  });
+
+  useCopilotAction({
+    name: "update-recipe",
+    description: "Update a recipe",
+    parameters: [
+      {
+        name: "id",
+        type: "string",
+        required: true,
+      },
+      {
+        name: "name",
+        type: "string",
+      },
+      {
+        name: "ingredients",
+        type: "string[]",
+      },
+      {
+        name: "instructions",
+        type: "string",
+      },
+      {
+        name: "imageUrl",
+        type: "string",
+      }
+    ],
+    handler: ({ id, name, ingredients, instructions }) => {
+      updateRecipe(id, { name, ingredients, instructions });
+      return "Recipe updated successfully";
+    },
+  });
+
+  return (
+    <div className="flex h-screen">
+      <div className="flex-1 bg-gray-200 p-4">
+        <h1 className="text-2xl font-bold mb-4">Recipes</h1>
+        {isGenerating && <p className="text-blue-500 mb-4">Generating recipe...</p>}
+        <ul className="space-y-4">
+          {recipes.length > 0 ? (
+            recipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                name={recipe.name}
+                ingredients={recipe.ingredients}
+                instructions={recipe.instructions}
+                imageUrl={recipe.imageUrl}
+              />
+            ))
+          ) : (
+            <p>No recipes found</p>
+          )}
+        </ul>
+      </div>
+      <CopilotSidebar />
     </div>
   );
 }
