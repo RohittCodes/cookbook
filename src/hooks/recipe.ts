@@ -7,6 +7,8 @@ type Recipe = {
     ingredients: string[];
     instructions: string;
     imageUrl: string;
+    cookingTime?: string;
+    difficulty?: string;
 };
 
 interface RecipeStore {
