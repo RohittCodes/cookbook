@@ -1,6 +1,6 @@
 "use client";
 
-import { ChefHat, Clock, Utensils, Edit, Trash2, Eye } from "lucide-react"
+import { ChefHat, Clock, Utensils, Trash2, Eye } from "lucide-react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import Link from "next/link";
+import Image from "next/image";
 
 interface RecipeCardProps {
   id: string
@@ -32,7 +33,7 @@ const RecipeCard = ({ id, name, ingredients, instructions, imageUrl, cookingTime
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg flex flex-col justify-between">
       <div className="aspect-video relative overflow-hidden">
-        <img src={imageUrl || "/placeholder.svg?height=200&width=300"} alt={name} className="object-cover w-full h-full" />
+        <Image src={imageUrl || "/placeholder.svg?height=200&width=300"} alt={name} className="object-cover w-full h-full" />
         <div className="absolute inset-0 bg-opacity-30 flex items-end">
           <div className="w-full p-4">
             <h3 className="font-bold text-lg line-clamp-1 rounded-md w-fit px-2 bg-primary-foreground text-primary-background
@@ -73,7 +74,7 @@ const RecipeCard = ({ id, name, ingredients, instructions, imageUrl, cookingTime
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure you want to delete this recipe?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the recipe "{name}".
+                This action cannot be undone. This will permanently delete the recipe &ldquo;{name}&rdquo;.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

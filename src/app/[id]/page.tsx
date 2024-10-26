@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import useRecipeStore from "@/hooks/recipe"
+import Image from 'next/image';
 
 export default function RecipePage({ params }: { params: { id: string } }) {
     const recipes = useRecipeStore(state => state.recipes)
@@ -26,7 +27,7 @@ export default function RecipePage({ params }: { params: { id: string } }) {
             </Link>
             <Card className="overflow-hidden">
                 <div className="relative h-64 sm:h-96">
-                    <img
+                    <Image
                         src={recipe.imageUrl || "/placeholder.svg?height=400&width=800"}
                         alt={recipe.name}
                         className="absolute inset-0 w-full h-full object-cover"

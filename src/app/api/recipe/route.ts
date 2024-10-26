@@ -24,8 +24,7 @@ export async function POST(req: Request) {
 
     let recipeString = completion.choices[0]?.message?.content?.trim();
 
-    // Attempt to clean the response to ensure valid JSON format
-    recipeString = recipeString?.replace(/^.*{/, "{") ?? ""; // Remove any text before JSON object
+    recipeString = recipeString?.replace(/^.*{/, "{") ?? "";
     const recipe = JSON.parse(recipeString);
 
     const randomNum = Math.floor(Math.random() * 1000);
