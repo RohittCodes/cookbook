@@ -10,6 +10,9 @@ CookBook is a recipe generating app that allows users to search for recipes base
 - Filter recipes
 
 ## Screenshots
+![Screenshot 2024-10-26 165433](https://github.com/user-attachments/assets/a4057aa7-a97f-47e4-8d1a-265238b545a8)
+![Screenshot 2024-10-26 165530](https://github.com/user-attachments/assets/2ef5cdd3-1f71-4419-ab5f-0f6789ebf932)
+
 
 ## Technologies
 - [Next.js](https://nextjs.org)
