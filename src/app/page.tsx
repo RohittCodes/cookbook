@@ -121,7 +121,7 @@ export default function Home() {
   });
 
   return (
-    <div className="flex bg-background">
+    <div className="flex bg-background min-h-screen">
       <div className="flex-1 overflow-auto px-8 py-4">
         <div className="mb-6 flex gap-4">
           <div className="relative flex-grow">
